@@ -1,53 +1,93 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+// Filename: index.js
+// Combined code from all files
 
-const App = () => {
-  const fullText = 'Hi, this is Apply.\nCreating mobile apps is now as simple as typing text.\nJust input your idea and press APPLY, and our platform does the rest...';
-  const [displayedText, setDisplayedText] = useState('');
-  const [index, setIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+import React from 'react';
+import { SafeAreaView, StyleSheet, Text, FlatList, View, TouchableOpacity } from 'react-native';
 
-  useEffect(() => {
-    if (isPaused) return;
+const quizData = [
+    {
+        question: 'What is the SI unit of electric current?',
+        answers: ['Ohm', 'Ampere', 'Volt', 'Watt'],
+        correctAnswer: 'Ampere',
+    },
+    {
+        question: 'Which component is used to store electrical energy?',
+        answers: ['Resistor', 'Capacitor', 'Inductor', 'Transistor'],
+        correctAnswer: 'Capacitor',
+    },
+    {
+        question: 'What does LED stand for?',
+        answers: ['Light Emitting Diode', 'Liquid Emitting Diode', 'Light Energy Device', 'Laser Emitting Diode'],
+        correctAnswer: 'Light Emitting Diode',
+    },
+];
 
-    const interval = setInterval(() => {
-      setDisplayedText((prev) => prev + fullText[index]);
-      setIndex((prev) => {
-        if (prev === fullText.length - 1) {
-          setIsPaused(true);
-          setTimeout(() => {
-            setDisplayedText('');
-            setIndex(0);
-            setIsPaused(false);
-          }, 2000);
-          return 0;
-        }
-        return prev + 1;
-      });
-    }, 100);
+const Quiz = () => {
+    const renderItem = ({ item }) => (
+        <View style={styles.questionBox}>
+            <Text style={styles.questionText}>{item.question}</Text>
+            {item.answers.map((answer, index) => (
+                <TouchableOpacity key={index} style={styles.answerButton}>
+                    <Text style={styles.answerText}>{answer}</Text>
+                </TouchableOpacity>
+            ))}
+        </View>
+    );
 
-    return () => clearInterval(interval);
-  }, [index, isPaused]);
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>{displayedText}</Text>
-    </View>
-  );
+    return (
+        <FlatList
+            data={quizData}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => index.toString()}
+            contentContainerStyle={styles.quizContainer}
+        />
+    );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'black',
-    padding: 20,
-  },
-  text: {
-    color: 'white',
-    fontSize: 24,
-    fontFamily: 'monospace',
-  },
-});
+export default function App() {
+    return (
+        <SafeAreaView style={styles.container}>
+            <Text style={styles.title}>Electronics Basics Quiz</Text>
+            <Quiz />
+        </SafeAreaView>
+    );
+}
 
-export default App;
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingTop: 20,
+        paddingHorizontal: 16,
+        backgroundColor: '#f0f0f0',
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    quizContainer: {
+        paddingBottom: 20,
+    },
+    questionBox: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        marginBottom: 15,
+        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+    },
+    questionText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    answerButton: {
+        backgroundColor: '#e0e0e0',
+        padding: 15,
+        borderRadius: 10,
+        marginBottom: 10,
+    },
+    answerText: {
+        fontSize: 16,
+    },
+});
