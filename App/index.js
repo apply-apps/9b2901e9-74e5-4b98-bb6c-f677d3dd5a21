@@ -1,8 +1,8 @@
 // Filename: index.js
 // Combined code from all files
 
-import React from 'react';
-import { SafeAreaView, StyleSheet, Text, FlatList, View, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 const quizData = [
     {
@@ -23,35 +23,50 @@ const quizData = [
 ];
 
 const Quiz = () => {
-    const renderItem = ({ item }) => (
-        <View style={styles.questionBox}>
-            <Text style={styles.questionText}>{item.question}</Text>
-            {item.answers.map((answer, index) => (
-                <TouchableOpacity key={index} style={styles.answerButton}>
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [score, setScore] = useState(0);
+    const [showResult, setShowResult] = useState(false);
+
+    const handleAnswerPress = (answer) => {
+        if (answer === quizData[currentQuestionIndex].correctAnswer) {
+            setScore((prevScore) => prevScore + 1);
+        }
+        const nextQuestionIndex = currentQuestionIndex + 1;
+        if (nextQuestionIndex < quizData.length) {
+            setCurrentQuestionIndex(nextQuestionIndex);
+        } else {
+            setShowResult(true);
+        }
+    };
+
+    if (showResult) {
+        return (
+            <View style={styles.resultContainer}>
+                <Text style={styles.resultText}>Your score: {score} / {quizData.length}</Text>
+                <TouchableOpacity onPress={() => {
+                    setCurrentQuestionIndex(0);
+                    setScore(0);
+                    setShowResult(false);
+                }}>
+                    <Text style={styles.restartButton}>Restart Quiz</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
+
+    const currentQuestion = quizData[currentQuestionIndex];
+
+    return (
+        <View style={styles.quizContainer}>
+            <Text style={styles.questionText}>{currentQuestion.question}</Text>
+            {currentQuestion.answers.map((answer, index) => (
+                <TouchableOpacity key={index} style={styles.answerButton} onPress={() => handleAnswerPress(answer)}>
                     <Text style={styles.answerText}>{answer}</Text>
                 </TouchableOpacity>
             ))}
         </View>
     );
-
-    return (
-        <FlatList
-            data={quizData}
-            renderItem={renderItem}
-            keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={styles.quizContainer}
-        />
-    );
 };
-
-export default function App() {
-    return (
-        <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>Electronics Basics Quiz</Text>
-            <Quiz />
-        </SafeAreaView>
-    );
-}
 
 const styles = StyleSheet.create({
     container: {
@@ -67,19 +82,21 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     quizContainer: {
-        paddingBottom: 20,
-    },
-    questionBox: {
         backgroundColor: '#fff',
         padding: 20,
         borderRadius: 10,
         marginBottom: 15,
         boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
     },
+    resultContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     questionText: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginBottom: 10,
+        marginBottom: 20,
     },
     answerButton: {
         backgroundColor: '#e0e0e0',
@@ -90,4 +107,23 @@ const styles = StyleSheet.create({
     answerText: {
         fontSize: 16,
     },
+    resultText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+    restartButton: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#0066cc',
+    },
 });
+
+export default function App() {
+    return (
+        <SafeAreaView style={styles.container}>
+            <Text style={styles.title}>Electronics Basics Quiz</Text>
+            <Quiz />
+        </SafeAreaView>
+    );
+}
